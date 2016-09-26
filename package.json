@@ -1,0 +1,7 @@
+{
+    "name": "videoImg",
+    "version": "0.0.0",
+    "dependencies": {
+        "gm": "^1.23.0"
+    }
+}
