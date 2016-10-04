@@ -42,7 +42,7 @@ function getAllFiles() {
         console.log('done', parseInt((i+1) / frameLength * 100) + '%');
       }
 
-      LoopCompareImg(frameArr);
+      //LoopCompareImg(frameArr);
       //fs.writeFile('./frame.json', JSON.stringify(frameArr), function(err){
       //  if(err) throw err;
       //  console.log('write success');
@@ -52,75 +52,103 @@ function getAllFiles() {
 }
 
 // 循环对比每个图片的坐标位置的
-function LoopCompareImg(frameArr) {
-  var _frameLength = frameArr.length;
-  var cpArr = _.clone(frameArr);
-
-  //组装所有坐标的容器
-  var bigArr = [];
-
-  //while(_frameLength > 1) {
-    // 两两进行比较，得到的数组
-    var unitTwoArr = [];
-    for (var i = 0;i < _frameLength; i = i + 2) {
-
-      if (i == (_frameLength - 1)) {
-        unitTwoArr.push(frameArr[i]);
-      } else {
-        compareTwoImg(cpArr, i);
-      }
-    }
-    //_frameLength = unitTwoArr.length;
-  //}
-}
+//function LoopCompareImg(frameArr) {
+//  var cpArr = _.clone(frameArr);
+//  var _frameLength = cpArr.length;
+//
+//  //组装所有坐标的容器
+//  var bigArr = [];
+//
+//  //while(_frameLength > 1) {
+//
+//    var unitTwoArr = [];
+//    // 两两进行比较，得到的数组
+//    for (var i = 0;i < _frameLength; i = i + 2) {
+//
+//      if (i == (_frameLength - 1)) {
+//        unitTwoArr.push(cpArr[i]);
+//      } else {
+//        var newarr = compareTwoImg(cpArr, i);
+//        unitTwoArr.push(newarr);
+//
+//      }
+//    }
+//    cpArr = unitTwoArr;
+//    _frameLength = cpArr.length;
+//    if (_frameLength == 1) {
+//      bigArr = cpArr[0];
+//    }
+//  //}
+//  console.log(bigArr.length, 'unit length');
+//}
 
 // 对比两个图片的所有坐标，像素是否相同，并返回合并后的数组
-function compareTwoImg(frameArr, i) {
-  var leftObj = frameArr[i];
-  var rightObj = frameArr[i + 1];
-  var leftImg = imgCache[i];
-  var rightImg = imgCache[i + 1];
-  var newArr = [];
-  var leftFrameIndex = leftObj[0].frameindex;
-  var rightFrameIndex = rightObj[0].frameindex;
-  leftObj.forEach(function(e) {
-    var newE = {
-      x:e.x,
-      y:e.y,
-      w:e.w,
-      h:e.h
-    };
-    var lastIndex = _.findLastIndex(rightObj, newE);
-
-    // 如果两张图片，存在同一个坐标,并且截取面积也相同
-    if (lastIndex != -1) {
-      // 再进行像素级对比
-      ctx.clearRect(0, 0, imgWid, imgHei);
-      ctx.drawImage(leftImg, 0, 0, imgWid, imgHei);
-      var leftImgData = ctx.getImageData(e.x, e.y, e.w, e.h);
-      ctx.clearRect(0, 0, imgWid, imgHei);
-      ctx.drawImage(rightImg, 0, 0, imgWid, imgHei);
-      var rightImgData = ctx.getImageData(e.x, e.y, e.w, e.h);
-      if (!newE.frameindex) {
-        newE.frameindex = [];
-      }
-      var cp_e = _.clone(newE);
-      if (_.isEqual(leftImgData, rightImgData)) {
-        console.log('frameindex', i, e.x, e.y, e.w, e.h);
-        cp_e.frameindex.push(leftFrameIndex);
-        cp_e.frameindex.push(rightFrameIndex);
-        newArr.push(cp_e);
-      } else {
-        var cp_ea  = _.clone(newE);
-        var cp_eb  = _.clone(newE);
-        cp_ea.frameindex.push(leftFrameIndex);
-        cp_eb.frameindex.push(rightFrameIndex);
-        newArr.push(cp_ea);
-        newArr.push(cp_eb);
-      }
-    }
-  });
-}
+//var testi = 0;
+//function compareTwoImg(frameArr, i) {
+//  var leftObj = _.clone(frameArr[i]);
+//  var rightObj = _.clone(frameArr[i + 1]);
+//  console.log(leftObj.length, rightObj.length);
+//  var newArr = [];
+//  leftObj.forEach(function(e, j) {
+//    var newE = {
+//      x:e.x,
+//      y:e.y,
+//      w:e.w,
+//      h:e.h
+//    };
+//    var leftFrameIndex = e.frameindex;
+//    var lastIndex = _.findLastIndex(rightObj, newE);
+//
+//    newE.frameindex = [];
+//
+//    // 如果两张图片，存在同一个坐标,并且截取面积也相同
+//    if (lastIndex != -1) {
+//      var rightFrameIndex = rightObj[lastIndex].frameindex;
+//      rightObj.splice(lastIndex, 1);
+//      var leftImg = imgCache[leftFrameIndex[0] - 1];
+//      var rightImg = imgCache[rightFrameIndex[0] - 1];
+//
+//      // 再进行像素级对比
+//      ctx.clearRect(0, 0, imgWid, imgHei);
+//      ctx.drawImage(leftImg, 0, 0, imgWid, imgHei);
+//      var leftImgData = ctx.getImageData(e.x, e.y, e.w, e.h);
+//      ctx.clearRect(0, 0, imgWid, imgHei);
+//      ctx.drawImage(rightImg, 0, 0, imgWid, imgHei);
+//      var rightImgData = ctx.getImageData(e.x, e.y, e.w, e.h);
+//      if (e.w == 8) {
+//        testi++;
+//        if (testi == 1) {
+//          console.log(e, leftImgData, rightImgData);
+//        }
+//      }
+//      var cp_e = _.clone(newE);
+//      if (_.isEqual(leftImgData, rightImgData)) {
+//        cp_e.frameindex = cp_e.frameindex.concat(leftFrameIndex);
+//        cp_e.frameindex = cp_e.frameindex.concat(rightFrameIndex);
+//        newArr.push(cp_e);
+//      } else {
+//        var cp_ea = _.clone(newE);
+//        var cp_eb = _.clone(newE);
+//
+//        cp_ea.frameindex = cp_ea.frameindex.concat(leftFrameIndex);
+//        cp_eb.frameindex = cp_eb.frameindex.concat(rightFrameIndex);
+//        newArr.push(cp_ea);
+//        newArr.push(cp_eb);
+//      }
+//    } else {
+//      var cp_ea = _.clone(newE);
+//      cp_ea.frameindex = cp_ea.frameindex.concat(leftFrameIndex);
+//      newArr.push(cp_ea);
+//    }
+//  });
+//  if (rightObj.length > 0) {
+//    rightObj.forEach(function(e) {
+//      var cp_ea = _.clone(e);
+//      newArr.push(cp_ea);
+//    });
+//  }
+//  return newArr;
+//}
 
 // 读取每个图片，并且获取这个图片中所有的方格的坐标。
 function readFileAndGetAxis(squid, frameindex) {
@@ -170,12 +198,14 @@ function readFileAndGetAxis(squid, frameindex) {
         w = beforeW + w;
       }
     }
+    var frameindexArr = [];
+    frameindexArr.push(frameindex);
     mergeAxisArray.push({
       x: x,
       y: y,
       w: w,
       h: h,
-      frameindex:frameindex
+      frameindex:frameindexArr
     });
   });
   return mergeAxisArray;
