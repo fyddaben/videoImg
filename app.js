@@ -1,4 +1,5 @@
 var fs = require('fs');
+var async = require('async');
 var path = require('path');
 var Canvas = require('canvas')
   , Image = Canvas.Image;
@@ -44,16 +45,10 @@ function getAllFiles() {
         console.log('raw data done ', parseInt((i+1) / frameLength * 100) + '%');
       }
 
-      var bigArr = LoopCompareImg(frameArr);
+      LoopCompareImg(frameArr);
 
-      console.log('compare donw');
 
-      redrawByOrder(bigArr);
 
-      //fs.writeFile('./frame.json', JSON.stringify(frameArr), function(err){
-      //  if(err) throw err;
-      //  console.log('write success');
-      //});
     });
   });
 }
@@ -68,32 +63,44 @@ function LoopCompareImg(frameArr) {
   var loopMakeGroup = function() {
     var unitTwoArr = [];
     // 两两进行比较，得到的数组
-    for (var i = 0;i < _frameLength; i = i + 2) {
-
-      if (i == (_frameLength - 1)) {
-        unitTwoArr.push(cpArr[i]);
-      } else {
-        var newarr = compareTwoImg(cpArr, i);
-        unitTwoArr.push(newarr);
+    var taskArr = [];
+    cpArr.forEach(function(e, i) {
+      if (i % 2 == 0) {
+        if (i == (_frameLength - 1)) {
+          unitTwoArr.push(cpArr[i]);
+        } else {
+          var index = _.clone(i);
+          taskArr.push(function(callback) {
+            compareTwoImg(cpArr, index, callback)
+          });
+          //unitTwoArr.push(newarr);
+        }
       }
-    }
-    cpArr = unitTwoArr;
-    _frameLength = cpArr.length;
-    console.log('compare ' + _frameLength + 'done');
-    if (_frameLength == 1) {
-      bigArr = cpArr[0];
-    } else {
-      loopMakeGroup();
-    }
+    });
+    async.parallel(taskArr, function (err, results) {
+      console.log(results.length, 'length...');
+      unitTwoArr = unitTwoArr.concat(results);
+      cpArr = unitTwoArr;
+      _frameLength = cpArr.length;
+      if (_frameLength == 1) {
+        bigArr = cpArr[0];
+        console.log(bigArr.length, 'big arr');
+        redrawByOrder(bigArr);
+      } else {
+        loopMakeGroup();
+      }
+    });
+
   }
-  return bigArr;
+  loopMakeGroup();
 }
 
 // 对比两个图片的所有坐标，像素是否相同，并返回合并后的数组
 //var testi = 0;
-function compareTwoImg(frameArr, i) {
+function compareTwoImg(frameArr, i, callback) {
   var leftObj = _.clone(frameArr[i]);
   var rightObj = _.clone(frameArr[i + 1]);
+  console.log(leftObj.length, rightObj.length, 'com leng', i);
   var newArr = [];
   var testi = 0;
   leftObj.forEach(function(e, j) {
@@ -150,8 +157,7 @@ function compareTwoImg(frameArr, i) {
       newArr.push(cp_ea);
     });
   }
-  console.log('compare ' + i + ' done');
-  return newArr;
+  callback(null, newArr);
 }
 
 
@@ -245,8 +251,7 @@ function redrawByOrder(frameArr) {
       }
     }
     var cutLeftWid = leftWid - num_x * bigestObj.w
-    for (var i = 0;i < num_x;i ++) {
-    }
+
     if (cutLeftWid > 0) {
       leftWid = cutLeftWid;
       loopCheckNext();
@@ -274,16 +279,38 @@ function startDrawMergePic(orderFrameArray) {
   // 每个页面有几行
   var unitLine = rectWid / 8;
   var orderframe = [];
+  var resultArr = [];
+  var ii = 0;
   orderFrameArray.forEach(function(e) {
     e.arr.forEach(function(unit) {
       var curPageNum = unit.curImgIndex;
+      ii++;
+      if (ii == 1) {
+        console.log(unit);
+      }
 
       if (!orderframe[curPageNum]) {
         orderframe[curPageNum] = [];
       }
+
+      var larray = [unit.x / 8, unit.y / 8, unit.w / 8, unit.tarx / 8, unit.tary / 8, unit.curImgIndex];
+
+      larray = larray.concat(unit.frameindex);
+
+      //var str = larray.join(',');
+
+      resultArr.push(larray);
+
       orderframe[curPageNum].push(unit);
+
     });
   });
+
+  fs.writeFile('./dist/frame.json', JSON.stringify(resultArr), function(err){
+    if(err) throw err;
+    console.log('write success');
+  });
+  // 拼装图片
   orderframe.forEach(function(e, index) {
     var canvas = new Canvas(rectWid, rectWid);
     var ctx = canvas.getContext('2d');
@@ -294,9 +321,10 @@ function startDrawMergePic(orderFrameArray) {
       var curImg = imgCache[unit.frameindex[0] - 1];
       ctx.drawImage(curImg, unit.x, unit.y, unit.w, unit.h, unit.tarx, unit.tary, unit.w, unit.h);
     });
+    var frameIndex = index + 1;
     canvas.createJPEGStream({
       quality: 60
-    }).pipe(fs.createWriteStream(path.join(__dirname, 'dist/flow_'+ index +'.jpg')));
+    }).pipe(fs.createWriteStream(path.join(__dirname, 'dist/flow_'+ frameIndex +'.jpg')));
     console.log('draw ' + index + ' done');
   });
 
