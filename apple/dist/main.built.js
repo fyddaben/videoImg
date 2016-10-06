@@ -22089,13 +22089,15 @@
         }
         ;
         m._onManifestLoaded = function(a) {
-            if (this.assets) {
-                this.assets.manifest = a;
-                this.state.manifestLoaded = true;
-                this._paused = true;
-                this._removeFromActiveLoaders(this._loaders.manifest);
-                return this.assets.manifest
-            }
+          console.log(a);
+            //if (this.assets) {
+            //    this.assets.manifest = a;
+            //    console.log(a);
+            //    this.state.manifestLoaded = true;
+            //    this._paused = true;
+            //    this._removeFromActiveLoaders(this._loaders.manifest);
+            //    return this.assets.manifest
+            //}
         }
         ;
         m._onKeyframesLoaded = function(a) {
@@ -22921,6 +22923,7 @@
                 })
             },
             _valueForCharAt: function(a, c) {
+
                 var b = a.charCodeAt(c);
                 if (b > 64 && b < 91) {
                     return b - 65
@@ -22942,6 +22945,9 @@
                 var c = 0, d;
                 while (b--) {
                     d = this._valueForCharAt(a, f++);
+                    if (f == 1) {
+                      console.log(b , a , f, d);
+                    }
                     c += (d << b * 6)
                 }
                 return c
@@ -22957,6 +22963,7 @@
                     return f
                 }
                 for (a = 0; a < b.length; a += 5) {
+
                     d = this._createNumberFromBase64Range(b, a, 3);
                     h = this._createNumberFromBase64Range(b, a + 3, 2);
                     f.push(Object.create(j.prototype, {
@@ -23063,7 +23070,6 @@
         i.renderDiff = function(d, a) {
             var b = d.getContext("2d");
             a -= 1;
-            console.log(a, 'frams index', this.frames[a]);
             for (var c = 0, f = this.frames[a].length; c < f; c++) {
                 this._applyDiffRange(b, this.frames[a][c])
             }

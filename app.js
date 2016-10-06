@@ -46,9 +46,6 @@ function getAllFiles() {
       }
 
       LoopCompareImg(frameArr);
-
-
-
     });
   });
 }
@@ -186,6 +183,7 @@ function redrawByOrder(frameArr) {
 
   var lineWid = 0;
   var leftWid = rectWid;
+
   // 记录当前坐标轴x的位置
   var curX = 0;
   var curY = 0;
@@ -198,6 +196,9 @@ function redrawByOrder(frameArr) {
 
   // 判断当前第几个图片
   var curImgIndex = 0;
+
+  // 用于存储数据的对象
+  var storeDataArr = [];
 
   // 所有对象的数量
   function loopCheckNext() {
@@ -213,6 +214,7 @@ function redrawByOrder(frameArr) {
     });
     if (bigestNum == -1) {
       startDrawMergePic(orderFrameArray);
+      storeCreateFile(storeDataArr);
       return false;
     }
     // 包含最大数的集合
@@ -241,6 +243,8 @@ function redrawByOrder(frameArr) {
         curBig.tarx = curX;
         curBig.tary = curY;
         curBig.curImgIndex = curImgIndex;
+
+        storeDataArr.push(curBig);
 
         curX+= parseInt(curBig.w);
 
@@ -279,37 +283,16 @@ function startDrawMergePic(orderFrameArray) {
   // 每个页面有几行
   var unitLine = rectWid / 8;
   var orderframe = [];
-  var resultArr = [];
-  var ii = 0;
   orderFrameArray.forEach(function(e) {
     e.arr.forEach(function(unit) {
       var curPageNum = unit.curImgIndex;
-      ii++;
-      if (ii == 1) {
-        console.log(unit);
-      }
-
       if (!orderframe[curPageNum]) {
         orderframe[curPageNum] = [];
       }
-
-      var larray = [unit.x / 8, unit.y / 8, unit.w / 8, unit.tarx / 8, unit.tary / 8, unit.curImgIndex];
-
-      larray = larray.concat(unit.frameindex);
-
-      //var str = larray.join(',');
-
-      resultArr.push(larray);
-
       orderframe[curPageNum].push(unit);
-
     });
   });
 
-  fs.writeFile('./dist/frame.json', JSON.stringify(resultArr), function(err){
-    if(err) throw err;
-    console.log('write success');
-  });
   // 拼装图片
   orderframe.forEach(function(e, index) {
     var canvas = new Canvas(rectWid, rectWid);
@@ -330,6 +313,32 @@ function startDrawMergePic(orderFrameArray) {
 
 
 }
+
+//存储要读取的数据
+function storeCreateFile(frameArray) {
+
+  // 这个数组按照拼图的画画顺序排列的，
+  var newFrameArr = [];
+  frameArray.forEach(function(e, i) {
+    if (i == 0 || i == 1 || i == 2|| i == 3) {
+      console.log(e);
+    }
+    // 因为8 x 8个元素一个格子,所以可以按照序号。表示坐标
+    var rectIndex = (e.x / 8) * (e.y / 8);
+    var w = e.w / 8;
+    var child = [];
+    child.push(rectIndex);
+    child.push(w);
+    child = child.concat(e.frameindex);
+    newFrameArr.push(child);
+  });
+
+  fs.writeFile('./dist/frame.json', JSON.stringify({w: rectWid, h: imgHei, v:newFrameArr}), function(err){
+    if(err) throw err;
+    console.log('write success');
+  });
+}
+
 
 // 读取每个图片，并且获取这个图片中所有的方格的坐标。
 function readFileAndGetAxis(squid, frameindex) {
