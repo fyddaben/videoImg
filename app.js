@@ -40,11 +40,9 @@ function getAllFiles() {
 
       for (var i = 0;i < bufs.length; i++) {
         var arr = readFileAndGetAxis(bufs[i], i + 1);
-        //frameArr = frameArr.concat(arr);
         frameArr[i] = arr;
         console.log('raw data done ', parseInt((i+1) / frameLength * 100) + '%');
       }
-
       LoopCompareImg(frameArr);
     });
   });
@@ -82,7 +80,7 @@ function LoopCompareImg(frameArr) {
       if (_frameLength == 1) {
         bigArr = cpArr[0];
         console.log(bigArr.length, 'big arr');
-        redrawByOrder(bigArr);
+        //redrawByOrder(bigArr);
       } else {
         loopMakeGroup();
       }
@@ -161,7 +159,9 @@ function compareTwoImg(frameArr, i, callback) {
 // 对数组进行排序,按照截取宽度,并且进行绘图重组
 function redrawByOrder(frameArr) {
   var orderFrame = {};
+
   frameArr.forEach(function(e) {
+
     if (!orderFrame[e.w]) {
       orderFrame[e.w] = [];
     }
@@ -306,7 +306,6 @@ function startDrawMergePic(orderFrameArray) {
     });
     var frameIndex = index + 1;
     canvas.createJPEGStream({
-      quality: 60
     }).pipe(fs.createWriteStream(path.join(__dirname, 'dist/flow_'+ frameIndex +'.jpg')));
     console.log('draw ' + index + ' done');
   });
@@ -320,11 +319,9 @@ function storeCreateFile(frameArray) {
   // 这个数组按照拼图的画画顺序排列的，
   var newFrameArr = [];
   frameArray.forEach(function(e, i) {
-    if (i == 0 || i == 1 || i == 2|| i == 3) {
-      console.log(e);
-    }
+
     // 因为8 x 8个元素一个格子,所以可以按照序号。表示坐标
-    var rectIndex = (e.x / 8) * (e.y / 8);
+    var rectIndex = (rectWid / 8 * (e.y / 8)) + (e.x / 8);
     var w = e.w / 8;
     var child = [];
     child.push(rectIndex);
