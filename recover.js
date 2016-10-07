@@ -22,6 +22,7 @@ var topY = 0;
 
 // 组合图片的序号
 var pieceImgIndex = 1;
+console.log('frame len', frameObj.v.length);
 
 frameObj.v.forEach(function(e, i) {
   var frameindex = e.slice(2);
@@ -45,6 +46,7 @@ frameObj.v.forEach(function(e, i) {
       ty: ty,
       curImg: pieceImgIndex
     }
+
     videoObj[f].push(curObj);
   });
   leftX += w;

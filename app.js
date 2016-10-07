@@ -37,10 +37,11 @@ function getAllFiles() {
       }
 
       frameLength = bufs.length;
-
+      var bigArr = [];
       for (var i = 0;i < bufs.length; i++) {
         var arr = readFileAndGetAxis(bufs[i], i + 1);
         frameArr[i] = arr;
+        bigArr = bigArr.concat(arr);
         console.log('raw data done ', parseInt((i+1) / frameLength * 100) + '%');
       }
       LoopCompareImg(frameArr);
@@ -68,7 +69,6 @@ function LoopCompareImg(frameArr) {
           taskArr.push(function(callback) {
             compareTwoImg(cpArr, index, callback)
           });
-          //unitTwoArr.push(newarr);
         }
       }
     });
@@ -80,7 +80,8 @@ function LoopCompareImg(frameArr) {
       if (_frameLength == 1) {
         bigArr = cpArr[0];
         console.log(bigArr.length, 'big arr');
-        //redrawByOrder(bigArr);
+        redrawByOrder(bigArr);
+
       } else {
         loopMakeGroup();
       }
@@ -243,7 +244,6 @@ function redrawByOrder(frameArr) {
         curBig.tarx = curX;
         curBig.tary = curY;
         curBig.curImgIndex = curImgIndex;
-
         storeDataArr.push(curBig);
 
         curX+= parseInt(curBig.w);
@@ -264,7 +264,7 @@ function redrawByOrder(frameArr) {
       curY+= 8;
       curX = 0;
       leftWid = rectWid;
-      if (lineAmount > unitLine * (curImgIndex + 1)) {
+      if (lineAmount == unitLine * (curImgIndex + 1)) {
         curY = 0;
         curImgIndex++;
       }
@@ -302,6 +302,7 @@ function startDrawMergePic(orderFrameArray) {
     ctx.fillRect(0, 0, rectWid, rectWid);
     e.forEach(function(unit) {
       var curImg = imgCache[unit.frameindex[0] - 1];
+
       ctx.drawImage(curImg, unit.x, unit.y, unit.w, unit.h, unit.tarx, unit.tary, unit.w, unit.h);
     });
     var frameIndex = index + 1;
@@ -309,7 +310,6 @@ function startDrawMergePic(orderFrameArray) {
     }).pipe(fs.createWriteStream(path.join(__dirname, 'dist/flow_'+ frameIndex +'.jpg')));
     console.log('draw ' + index + ' done');
   });
-
 
 }
 
