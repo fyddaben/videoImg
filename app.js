@@ -131,68 +131,68 @@ function LoopCompareImg(frameArr) {
 
 // 对比两个图片的所有坐标，像素是否相同，并返回合并后的数组
 //var testi = 0;
-function compareTwoImg(frameArr, i, callback) {
-  var leftObj = _.clone(frameArr[i]);
-  var rightObj = _.clone(frameArr[i + 1]);
-  console.log(leftObj.length, rightObj.length, 'com leng', i);
-  var newArr = [];
-  var testi = 0;
-  leftObj.forEach(function(e, j) {
-    var newE = {
-      x:e.x,
-      y:e.y,
-      w:e.w,
-      h:e.h
-    };
-    var leftFrameIndex = e.frameindex;
-    var lastIndex = _.findLastIndex(rightObj, newE);
-
-    newE.frameindex = [];
-
-    // 如果两张图片，存在同一个坐标,并且截取面积也相同
-    if (lastIndex != -1) {
-      var rightFrameIndex = rightObj[lastIndex].frameindex;
-      rightObj.splice(lastIndex, 1);
-      var leftImg = imgCache[leftFrameIndex[0] - 1];
-      var rightImg = imgCache[rightFrameIndex[0] - 1];
-
-      // 再进行像素级对比
-      ctx.clearRect(0, 0, imgWid, imgHei);
-      ctx.drawImage(leftImg, 0, 0, imgWid, imgHei);
-      var leftImgData = ctx.getImageData(e.x, e.y, e.w, e.h);
-      ctx.clearRect(0, 0, imgWid, imgHei);
-      ctx.drawImage(rightImg, 0, 0, imgWid, imgHei);
-      var rightImgData = ctx.getImageData(e.x, e.y, e.w, e.h);
-
-      var cp_e = _.clone(newE);
-      if (_.isEqual(leftImgData.data, rightImgData.data)) {
-
-        cp_e.frameindex = cp_e.frameindex.concat(leftFrameIndex);
-        cp_e.frameindex = cp_e.frameindex.concat(rightFrameIndex);
-        newArr.push(cp_e);
-      } else {
-        var cp_ea = _.clone(newE);
-        var cp_eb = _.clone(newE);
-
-        cp_ea.frameindex = cp_ea.frameindex.concat(leftFrameIndex);
-        cp_eb.frameindex = cp_eb.frameindex.concat(rightFrameIndex);
-        newArr.push(cp_ea);
-        newArr.push(cp_eb);
-      }
-    } else {
-      var cp_ea = _.clone(newE);
-      cp_ea.frameindex = cp_ea.frameindex.concat(leftFrameIndex);
-      newArr.push(cp_ea);
-    }
-  });
-  if (rightObj.length > 0) {
-    rightObj.forEach(function(e) {
-      var cp_ea = _.clone(e);
-      newArr.push(cp_ea);
-    });
-  }
-  callback(null, newArr);
-}
+//function compareTwoImg(frameArr, i, callback) {
+//  var leftObj = _.clone(frameArr[i]);
+//  var rightObj = _.clone(frameArr[i + 1]);
+//  console.log(leftObj.length, rightObj.length, 'com leng', i);
+//  var newArr = [];
+//  var testi = 0;
+//  leftObj.forEach(function(e, j) {
+//    var newE = {
+//      x:e.x,
+//      y:e.y,
+//      w:e.w,
+//      h:e.h
+//    };
+//    var leftFrameIndex = e.frameindex;
+//    var lastIndex = _.findLastIndex(rightObj, newE);
+//
+//    newE.frameindex = [];
+//
+//    // 如果两张图片，存在同一个坐标,并且截取面积也相同
+//    if (lastIndex != -1) {
+//      var rightFrameIndex = rightObj[lastIndex].frameindex;
+//      rightObj.splice(lastIndex, 1);
+//      var leftImg = imgCache[leftFrameIndex[0] - 1];
+//      var rightImg = imgCache[rightFrameIndex[0] - 1];
+//
+//      // 再进行像素级对比
+//      ctx.clearRect(0, 0, imgWid, imgHei);
+//      ctx.drawImage(leftImg, 0, 0, imgWid, imgHei);
+//      var leftImgData = ctx.getImageData(e.x, e.y, e.w, e.h);
+//      ctx.clearRect(0, 0, imgWid, imgHei);
+//      ctx.drawImage(rightImg, 0, 0, imgWid, imgHei);
+//      var rightImgData = ctx.getImageData(e.x, e.y, e.w, e.h);
+//
+//      var cp_e = _.clone(newE);
+//      if (_.isEqual(leftImgData.data, rightImgData.data)) {
+//
+//        cp_e.frameindex = cp_e.frameindex.concat(leftFrameIndex);
+//        cp_e.frameindex = cp_e.frameindex.concat(rightFrameIndex);
+//        newArr.push(cp_e);
+//      } else {
+//        var cp_ea = _.clone(newE);
+//        var cp_eb = _.clone(newE);
+//
+//        cp_ea.frameindex = cp_ea.frameindex.concat(leftFrameIndex);
+//        cp_eb.frameindex = cp_eb.frameindex.concat(rightFrameIndex);
+//        newArr.push(cp_ea);
+//        newArr.push(cp_eb);
+//      }
+//    } else {
+//      var cp_ea = _.clone(newE);
+//      cp_ea.frameindex = cp_ea.frameindex.concat(leftFrameIndex);
+//      newArr.push(cp_ea);
+//    }
+//  });
+//  if (rightObj.length > 0) {
+//    rightObj.forEach(function(e) {
+//      var cp_ea = _.clone(e);
+//      newArr.push(cp_ea);
+//    });
+//  }
+//  callback(null, newArr);
+//}
 
 
 // 对数组进行排序,按照截取宽度,并且进行绘图重组
