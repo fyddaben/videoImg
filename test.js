@@ -1,0 +1,1 @@
+var str = shortHash('eeeee hash...');console.log(str)

@@ -16,6 +16,13 @@ $(function() {
   var backColor = "245,245,245,255";
   var canvas = document.getElementById("J_panel");;
   var ctx = canvas.getContext('2d');
+
+  // 循环获取每个图片上重复的方格
+  function pushRepeatRect(pts, videoO) {
+    pts.forEach(function(e, i) {
+
+    })
+  }
   function afterloadFrame() {
     videoWid = frameObj.w;
     videoHei = frameObj.h;
@@ -29,7 +36,7 @@ $(function() {
     var topY = 0;
 
     frameObj.v.forEach(function(e, i) {
-      var frameindex = e.slice(2);
+      var frameindex = e[2][0];
       var rectIndex = parseInt(e[0]);
       var ty = parseInt(rectIndex / rectAmountLine) * 8;
       var tx = rectIndex % rectAmountLine * 8;
@@ -37,34 +44,53 @@ $(function() {
       var h = 8;
       var x = leftX;
       var y = topY;
-      frameindex.forEach(function(f) {
-        if (!videoObj[f]) {
-          frameCount++;
-          videoObj[f] = [];
-        }
-        var curObj = {
-          x: x,
-          y: y,
-          w: w,
-          h: h,
-          tx: tx,
-          ty: ty,
-          curImg: pieceImgIndex
-        }
+      var otherpoints = e[3]
 
-        videoObj[f].push(curObj);
-      });
+      if (!videoObj[frameindex]) {
+        videoObj[frameindex] = [];
+        frameCount++
+      }
+      var curObj = {
+        x: x,
+        y: y,
+        w: w,
+        h: h,
+        tx: tx,
+        ty: ty,
+        curImg: pieceImgIndex
+      }
+      // 先存入当前点
+      videoObj[frameindex].push(curObj);
+      // 然后把附带的其他点存入
+      if (otherpoints) {
+        otherpoints.map((p)=> {
+          var newframeindex = p[0]
+          var op = p.slice(1)
+          rectIndex = parseInt(op);
+          var newPoint = {
+            x: x,
+            y: y,
+            w: w,
+            h: h,
+            curImg: pieceImgIndex
+          }
+          newPoint.ty = parseInt(rectIndex / rectAmountLine) * 8;
+          newPoint.tx = rectIndex % rectAmountLine * 8;
+          videoObj[newframeindex].push(newPoint)
+        })
+      }
+
       leftX += w;
-      if (leftX == videoWid) {
+      if (leftX >= videoWid) {
         leftX = 0;
         topY+= 8;
       }
+
       // 组合图片宽高都是videoWid
       if (topY == videoWid) {
         topY = 0;
         pieceImgIndex++;
       }
-
     });
     loadAllPieceImgs();
   }
@@ -97,7 +123,7 @@ $(function() {
   }
   function drawFrameImg(j) {
     ctx.clearRect(0, 0, videoWid, videoHei);
-    ctx.fillStyle = 'rgba(' + backColor + ')';
+    ///ctx.fillStyle = 'rgba(' + backColor + ')';
     ctx.fillRect(0, 0, videoWid, videoHei);
     var curObj = videoObj[j];
     curObj.forEach(function(e) {
