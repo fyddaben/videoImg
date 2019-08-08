@@ -11,8 +11,8 @@ var backColor = "245,245,245,255";
 for (var i = 0; i< 64; i++) {
   backColorArr.push(backColor);
 }
-var imgWid = 1400;
-var imgHei = 1080;
+var imgWid = 3536;
+var imgHei = 4608;
 var rectWid = imgWid;
 var canvas = new Canvas(imgWid, imgHei);
 var ctx = canvas.getContext('2d');
@@ -26,7 +26,7 @@ getAllFiles();
 var bigFrameArr = [];
 function getAllFiles() {
   console.log('okkk')
-  glob('./testimg/*.jpg', function(er, files) {
+  glob('./testimg/7.jpg', function(er, files) {
     if (er) {
       console.log(er);
     }
@@ -46,7 +46,7 @@ function getAllFiles() {
         bigArr = bigArr.concat(arr);
         console.log('raw data done ', parseInt((i+1) / frameLength * 100) + '%');
       }
-      bigArr = mergeByWidth(bigArr)
+      ///bigArr = mergeByWidth(bigArr)
       LoopCompareImg(bigArr);
     });
   });
@@ -56,7 +56,7 @@ function mergeByWidth(axisArry) {
   axisArry.forEach(function(e,i) {
     var rectindex = e.x;
     //每行的个数
-    var line_amount = imgWid / 8
+    var line_amount = parseInt(imgWid / 8)
     var x = parseInt(rectindex%line_amount) * 8;
     var y = parseInt(rectindex/line_amount) * 8;
     var w = 8;
@@ -200,7 +200,6 @@ function redrawByOrder(frameArr) {
   var orderFrame = {};
 
   frameArr.forEach(function(e) {
-
     if (!orderFrame[e.w]) {
       orderFrame[e.w] = [];
     }
@@ -217,6 +216,7 @@ function redrawByOrder(frameArr) {
   orderFrameArray.sort(function(a, b) {
     return b.w - a.w;
   });
+  console.log(orderFrameArray.length, 'frame length')
 
   // 获的截图面积从大到小的排序的数组
 
@@ -231,7 +231,7 @@ function redrawByOrder(frameArr) {
   var lineAmount = 0;
 
   // 每个页面有几行
-  var unitLine = rectWid / 8;
+  var unitLine = parseInt(rectWid / 8);
 
   // 判断当前第几个图片
   var curImgIndex = 0;
@@ -242,21 +242,36 @@ function redrawByOrder(frameArr) {
   // 所有对象的数量
   function loopCheckNext() {
     // 返回符合条件的第一个索引
+    var allChecked = true
     var bigestNum = _.findIndex(orderFrameArray, function(e) {
       var arr = e.arr;
       var flag = false;
       arr.forEach(function(unit) {
         if (!unit.hasCheck) {
           flag = true;
+          allChecked = false
         }
       });
       return e.w <= leftWid && flag;
     });
     // 都检查完毕了
-    if (bigestNum == -1) {
+    if (allChecked) {
       startDrawMergePic(orderFrameArray);
       storeCreateFile(storeDataArr);
       return false;
+    }
+    // 如果未检查完，但是后续空间不足，则换行
+    if (bigestNum == -1) {
+      lineAmount++;
+      curY+= 8;
+      curX = 0;
+      leftWid = rectWid;
+      if (lineAmount == unitLine * (curImgIndex + 1)) {
+        curY = 0;
+        curImgIndex++;
+      }
+      loopCheckNext();
+      return false
     }
     // 包含最大数的集合
     var bigestObj = orderFrameArray[bigestNum];
@@ -296,6 +311,8 @@ function redrawByOrder(frameArr) {
     }
     var cutLeftWid = leftWid - num_x * bigestObj.w
 
+    // 判断剩余宽度如果
+
     if (cutLeftWid > 0) {
       leftWid = cutLeftWid;
       loopCheckNext();
@@ -321,7 +338,7 @@ function startDrawMergePic(orderFrameArray) {
   // 先判断要画几个图片
   var picAmount = 0;
   // 每个页面有几行
-  var unitLine = rectWid / 8;
+  var unitLine = parseInt(rectWid / 8);
   var orderframe = [];
   orderFrameArray.forEach(function(e) {
     e.arr.forEach(function(unit) {
@@ -338,12 +355,12 @@ function startDrawMergePic(orderFrameArray) {
     var canvas = new Canvas(rectWid, rectWid);
     var ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, rectWid, rectWid);
-    ctx.fillStyle = 'rgba(' + backColor + ')';
+    //ctx.fillStyle = 'rgba(' + backColor + ')';
     ctx.fillRect(0, 0, rectWid, rectWid);
     e.forEach(function(unit) {
       var curImg = imgCache[unit.f[0] - 1];
       var reactIndex = unit.x
-      var line_amount = imgWid / 8
+      var line_amount = parseInt(imgWid / 8)
       var x = parseInt(reactIndex%line_amount) * 8;
       var y = parseInt(reactIndex/line_amount) * 8;
       var w = unit.w;
@@ -400,8 +417,8 @@ function readFileAndGetAxis(squid, frameindex) {
   imgCache.push(img);
   ctx.clearRect(0, 0, imgWid, imgHei);
   ctx.drawImage(img, 0, 0, imgWid, imgHei);
-  var widAmount = imgWid / 8;
-  var HeiAmount = imgHei / 8;
+  var widAmount = parseInt(imgWid / 8);
+  var HeiAmount = parseInt(imgHei / 8);
   var axisArry = [];
   var rectIndex = 0
   for (var k = 0; k< HeiAmount; k++ ) {
@@ -447,6 +464,7 @@ function readFileAndGetAxis(squid, frameindex) {
       rectIndex++
     }
   }
+  console.log(allImgCache.length, 'allimg cache')
   imgDoneAmount += axisArry.length
   //ctx.clearRect(0, 0, imgWid, imgHei);
   //ctx.fillStyle = 'rgba(245, 245, 245, 255)';

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>
+       模拟 video功能
+    </title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" >
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
+    <style>
+      canvas{
+        position: absolute;
+        left: 50%;
+        margin-left: -700px;
+        top:0px;
+      }
+      .btn-list{
+        position: absolute;
+        width: 1310px;
+        left: 50%;
+        margin-left: -655px;
+        top: 10px;
+        z-index: 10;
+      }
+      .btn-list li {
+        display: inline-block;
+        width: 200px;
+        height: 40px;
+        border-radius: 4px;
+        color: #000;
+        cursor: pointer;
+        background: #d1dfdc;
+        line-height: 40px;
+        text-align: center;
+        list-style-type: none;
+        margin-left: 10px;
+        -webkit-user-select: none;
+      }
+      .btn-list li:hover {
+        background: #4dd8ba;
+      }
+      .num-block{
+        position: absolute;
+        width: 200px;
+        text-align: center;
+        color: #000;
+        top: 90px;
+        left: 50%;
+        margin-left: -600px;
+        z-index: 10;
+      }
+    </style>
+  </head>
+  <body>
+    <ul class='btn-list'>
+    	<li class='J_load'>load()</li>
+    	<li class='J_play'>play()</li>
+    	<li class='J_pause'>pause()</li>
+    	<li class='J_foward'>currentTime+=0.1</li>
+    	<li class='J_backward'>currentTime-=0.1</li>
+    	<li class='J_reverse'>reversePlay()</li>
+    </ul>
+    <div class="num-block J_now"> time: <span>0</span>s</div>
+    <canvas id='J_panel' width='3328' height='1511'></canvas>
+
+    <script src='./public/jquery.min.js'></script>
+    <script src='./public/index.js'></script>
+  </body>
+</html>
